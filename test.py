@@ -1,8 +1,10 @@
 from config.config import data
 import lib.adb_command as adb
 import lib.api as api
-import cv2 as cv
-import time 
+import cv2 as cv2
+import time
+from PIL import Image
+import matplotlib as plt
 import lib.find as f
 # import os
 # import plugins.Turn as Turn
@@ -11,20 +13,120 @@ import lib.find as f
 import plugins.active as active
 import plugins.wilderness as wilderness
 import plugins.mission as mission
-
+import numpy as np
 import plugins.path as path
 #import config.config as config
 #import lib.ppocr as pp
+import lib.const as const
 
-print('开始初始化adb')
-device = adb.is_device_connected()
-if not device:
-    print("Error: 未连接设备，请回看上面的错误信息")
-    exit(1) 
-#检测游戏是否运行，如果没有运行就启动游戏
-adb.is_game_on()
-#进入主菜单
-path.to_menu()
+def show(img, name):
+    cv2.imshow(name, img)
+def mask_coloring(mask):
+    expected_color = (255, 255, 255)
+    color_mask = np.zeros((mask.shape[0], mask.shape[1], 3), dtype=np.uint8)
+    color_mask[mask == 255.0, :] = expected_color
+    plt.imshow(color_mask)
+def ff():
+    image = cv2.imread("cache/screenshot.png")
+    black = np.zeros([0, 0, 0])
+    max_width = 1600
+    max_height = 900
+    # cv2.rectangle(image, (0, 0), (max_width, 270), black, -1)
+    # cv2.rectangle(image, (0, 270 + 50), (max_width, 650), black, -1)
+    # cv2.rectangle(image, (0, 650 + 50), (max_width, max_height), black, -1)
+    # std = np.std(image, axis=2)
+    #
+    #
+    # image[std > 1] = [0, 0, 0]
+    point = f.find(const.IMAGE_TEAM_1)
+    cv2.circle(image, (int(point[0]), int(point[1])), int(10),
+               (0, 0, 255), 3)
+    point = f.find(const.IMAGE_TEAM_2)
+    cv2.circle(image, (int(point[0]), int(point[1])), int(10),
+               (0, 0, 255), 3)
+    point = f.find(const.IMAGE_TEAM_3)
+    cv2.circle(image, (int(point[0]), int(point[1])), int(10),
+               (0, 0, 255), 3)
+    point = f.find(const.IMAGE_TEAM_4)
+    cv2.circle(image, (int(point[0]), int(point[1])), int(10),
+               (0, 0, 255), 3)
+    # method 2, use np
+    # mask = np.repeat(std[:,:,np.newaxis], image.shape[2], axis=2) > 1
+    # modified = np.where(mask, np.array([0,0,0], dtype=np.uint8), image)
+    show(image, "image")
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    return
+    h, w, c = image.shape
+    ri = image.reshape(h, w, c)
+    print(image.shape)
+    print(ri.shape)
+    np.where(np.std(image[:, :])<0.5)
+    mask_coloring(image)
+    np.where()
+
+    # loc = np.where(image != 255)
+    # np.all(image[loc], (0, 0, 0))
+    # show(image, "image")
+    return
+
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    show(gray, "gray")
+
+    blurred = cv2.GaussianBlur(gray, (11, 11), 0)
+    show(blurred, "blurred")
+
+    thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)[1]
+    show(thresh, "thresh")
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+    return
+
+
+    # converting to LAB color space
+    lab = cv.cvtColor(image, cv.COLOR_BGR2LAB)
+    l_channel, a, b = cv.split(lab)
+
+    # Applying CLAHE to L-channel
+    # feel free to try different values for the limit and grid size:
+    clahe = cv.createCLAHE(clipLimit=20.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l_channel)
+
+    # merge the CLAHE enhanced L-channel with the a and b channel
+    limg = cv.merge((cl, a, b))
+
+    # Converting image from LAB Color model to BGR color spcae
+    enhanced_img = cv.cvtColor(limg, cv.COLOR_LAB2BGR)
+    cv.imshow('enhanced_img', enhanced_img)
+
+    
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    cv.imwrite("cache/" + str(time.time()) + "gray.png", gray)
+
+    sobel = cv.Sobel(image, cv.CV_64F, 1, 0, ksize=3)
+    show(sobel, "Sobel")
+
+    scharr = cv.Scharr(gray, cv.CV_64F, 1, 0);
+    show(scharr, "Scharr")
+
+    laplacian = cv.Laplacian(gray, cv.CV_64F)
+    show(laplacian, "Laplacian")
+
+    cv.waitKey()
+    cv.destroyAllWindows()
+
+ff()
+
+# print('开始初始化adb')
+# device = adb.is_device_connected()
+# if not device:
+#     print("Error: 未连接设备，请回看上面的错误信息")
+#     exit(1)
+# #检测游戏是否运行，如果没有运行就启动游戏
+# adb.is_game_on()
+# #进入主菜单
+# path.to_menu()
 # print(pp.ocr_cn('cache/screenshot.png'))
 # #active.Auto_Active(LEVEL_6,)
 # adb.touch(f.find('imgs/enter_the_show'))

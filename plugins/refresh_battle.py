@@ -6,14 +6,14 @@ from plugins import active
 import lib.adb_command as adb
 from plugins import Turn
 from collections import Counter
+import lib.utils as utils
+
 
 TOP_MIDDLE = (800, 10)
 BATTLE_INFO = active.IMAGE_BATTLE_INFO
 BATTLE_INFO_RESTART = active.IMAGE_BATTLE_INFO_RESTART
 CONFIRM = "imgs/confirm"
 EMPTY_CARD = "imgs/empty_card"
-
-INFINITE_LOOP_MAX_COUNT = 15
 
 def get_point(expected_scene):
     return find.find_boolean(expected_scene)
@@ -41,21 +41,21 @@ def restart_battle():
     battle_info_point = get_point(BATTLE_INFO)
     if not battle_info_point[2]:
         return False
-    try_limited(lambda: click(battle_info_point), lambda: not is_in_scene(BATTLE_INFO))
+    utils.try_limited(lambda: click(battle_info_point), lambda: not is_in_scene(BATTLE_INFO))
     battle_info_restart_point = get_point(BATTLE_INFO_RESTART)
     if not battle_info_restart_point[2]:
         return False
-    try_limited(lambda: click(battle_info_restart_point), lambda: not is_in_scene(BATTLE_INFO_RESTART))
+    utils.try_limited(lambda: click(battle_info_restart_point), lambda: not is_in_scene(BATTLE_INFO_RESTART))
     confirm_point = get_point(CONFIRM)
-    try_limited(lambda: click(confirm_point), lambda: not is_in_scene(CONFIRM))
+    utils.try_limited(lambda: click(confirm_point), lambda: not is_in_scene(CONFIRM))
 
 
 def start(team, expected_ally_cards, expected_enemy_cards):
     condition_match = False
     while (True):
         # 0.7阈值会导致空白卡片识别经常误判
-        # try_limited(lambda : doThenSleep(lambda: click(TOP_MIDDLE), 0.5), lambda: find.find(EMPTY_CARD)[2]>0.9)
-        try_limited(lambda: click(TOP_MIDDLE), lambda: find.find(EMPTY_CARD)[2] > 0.9)
+        # utils.try_limited(lambda : doThenSleep(lambda: click(TOP_MIDDLE), 0.5), lambda: find.find(EMPTY_CARD)[2]>0.9)
+        utils.try_limited(lambda: click(TOP_MIDDLE), lambda: find.find(EMPTY_CARD)[2] > 0.9)
 
         ally_cards = collect_ally_cards(team)
 
@@ -82,13 +82,3 @@ def start(team, expected_ally_cards, expected_enemy_cards):
     if not condition_match:
         raise "Unexpected"
 
-
-def try_limited(do_func, break_condition):
-    while_cnt = INFINITE_LOOP_MAX_COUNT
-    while (while_cnt > 0):
-        do_func()
-        if break_condition():
-            break
-        while_cnt -= 1
-    if while_cnt <= 0:
-        raise RuntimeError("Exceed max loop count")

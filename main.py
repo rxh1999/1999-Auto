@@ -39,7 +39,14 @@ init()
 # 自动收菜把下面的注释取消掉就可以运行：
 
 # wilderness.wild_start()
-# active.Auto_Active(active.IMAGE_ANALYSIS, active.LEVEL_5, active.REPLAY_2)  # 圣遗物狗粮本 等级5 复现2
+# api.get_screen_shot()
+# entries = api.find_brightest_area()
+# api.get_screen_shot()
+active.enter_somnambulism(["Bkornblume", "Lilya", "La_Source", "Sputnik"], [])
+t = Turn.Turn()
+t.team = ["Bkornblume", "Lilya", "La_Source", "Sputnik"]   #这里是你的角色名，请去 cards/aname.py 对照英文填写，可以多写把你常用的角色加入。
+auto.checkTurn(t)
+# active.Auto_Active(active.IMAGE_HARVEST, active.LEVEL_5, active.REPLAY_2)  # 圣遗物狗粮本 等级5 复现2
 # active.Auto_Active(active.IMAGE_MINTAGE_AESTHETICS, active.LEVEL_6, active.REPLAY_2)# 钱本 等级6 复现2
 # active.Auto_Active(active.IMAGE_THE_POUSSIERE, active.LEVEL_6, active.REPLAY_2)# 经验本 等级6 复现2
 # mission.mission_start()
@@ -53,9 +60,9 @@ init()
 # t.team = ['Eternity','Anan','Sotheby','Bkornblume']   #这里是你的角色名，请去 cards/aname.py 对照英文填写，可以多写把你常用的角色加入。
 # auto.checkTurn(t)
 
-
-# 自动凹技能+敌人行动
-team = ['Lilya', 'BalloonParty', 'Sonetto', 'Bkornblume']
-expected_cards = {('侧风起飞', 1): 2}
-# 需要自行进入战斗界面后，执行该方法
-refresh_battle.start(team, expected_cards, {})
+#
+# # 自动凹技能+敌人行动
+# team = ['Lilya', 'BalloonParty', 'Sonetto', 'Bkornblume']
+# expected_cards = {('侧风起飞', 1): 2}
+# # 需要自行进入战斗界面后，执行该方法
+# refresh_battle.start(team, expected_cards, {})
